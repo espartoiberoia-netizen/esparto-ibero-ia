@@ -1,0 +1,27 @@
+/* app/globals.css */
+
+/* 1. Fuentes de Google */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Fraunces:wght@600;700&display=swap");
+
+/* 2. Tailwind CSS v4 */
+@import "tailwindcss";
+
+/* 3. Colores base de la marca */
+:root {
+  --bg: #faf6f1;
+  --ink: #2e2a27;
+  --olive: #6e8b3d;
+  --sand: #e9e1d8;
+}
+
+/* 4. Estilo global */
+body {
+  font-family: Inter, system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+/* 5. Titulares serif */
+.font-serif {
+  font-family: Fraunces, Georgia, serif;
+}
