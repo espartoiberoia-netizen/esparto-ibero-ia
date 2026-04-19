@@ -46,11 +46,16 @@ export default function ObservatorioPage() {
     return a.precio_normalizado_kg - b.precio_normalizado_kg;
   });
 
+  const scrollToTable = () => {
+    const element = document.getElementById('listado-precios');
+    if (element) element.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <main className="mx-auto max-w-7xl px-4 py-6 md:py-8 font-sans text-neutral-900 bg-[#FAF6F1] min-h-screen">
       {/* HEADER */}
       <section className="mb-6 md:mb-8">
-        <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-serif text-[#4A3B28] mb-2 leading-tight">Observatorio de Precios Esparto Ibero IA</h1>
             <p className="text-sm md:text-base text-neutral-600 font-medium">Índice técnico de mercado • Abril 2026</p>
@@ -59,13 +64,29 @@ export default function ObservatorioPage() {
             ← VOLVER AL PANEL
           </Link>
         </div>
+
+        {/* AVISO IMPORTANTE AMARILLO */}
+        <div className="bg-amber-100 border-2 border-amber-400 p-4 rounded-2xl mb-8 flex flex-col md:flex-row items-center gap-4 shadow-md">
+          <span className="text-3xl">⚠️</span>
+          <div className="flex-1 text-center md:text-left">
+            <p className="font-bold text-amber-950 text-sm md:text-base uppercase tracking-tight">¡Importante! Datos del gráfico son PROMEDIOS</p>
+            <p className="text-amber-800 text-xs md:text-sm">Para encontrar el <strong>PRECIO MÁS BAJO</strong> por tipo de esparto, consulta el listado detallado abajo.</p>
+          </div>
+          <button 
+            onClick={scrollToTable}
+            className="bg-amber-600 hover:bg-amber-700 text-white px-5 py-2 rounded-xl text-xs font-bold transition-all shadow-sm whitespace-nowrap"
+          >
+            VER LISTADO DETALLADO ↓
+          </button>
+        </div>
         
         {/* KPIs */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-8">
           {statsPorTipo.map((s) => (
             <div key={s.tipo} className="bg-white p-4 md:p-5 rounded-2xl shadow-sm border-l-4 border-[#6E8B3D] border-[#E9E1D8] border-y border-r">
               <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-[#B8A896] mb-1 md:mb-2 font-black">{s.tipo}</p>
-              <p className="text-xl md:text-3xl font-serif text-[#4A3B28]">€{s.promedio}<span className="text-[10px] md:text-sm text-neutral-400 font-sans ml-1">/kg</span></p>
+              <p className="text-lg md:text-3xl font-serif text-[#4A3B28]">€{s.promedio}<span className="text-[10px] md:text-sm text-neutral-400 font-sans ml-1">/kg</span></p>
+              <p className="text-[8px] text-green-600 font-bold">(MEDIA)</p>
             </div>
           ))}
         </div>
@@ -74,7 +95,7 @@ export default function ObservatorioPage() {
       {/* GRÁFICO */}
       <section className="grid gap-6 lg:grid-cols-3 mb-10">
         <div className="lg:col-span-2 bg-white p-5 md:p-8 rounded-3xl border border-[#E9E1D8] shadow-sm">
-          <h2 className="text-lg md:text-xl font-serif mb-6 text-[#4A3B28] border-b border-[#FAF6F1] pb-4">Distribución (€ / Kilo)</h2>
+          <h2 className="text-lg md:text-xl font-serif mb-6 text-[#4A3B28] border-b border-[#FAF6F1] pb-4">Promedio de Precios (€ / Kilo)</h2>
           <div className="h-64 md:h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={statsPorTipo} margin={{ top: 30, right: 10, left: -20, bottom: 40 }}>
@@ -96,7 +117,7 @@ export default function ObservatorioPage() {
                   <LabelList 
                     dataKey="promedio" 
                     position="top" 
-                    formatter={(val: number) => `€${val}`}
+                    formatter={(val: number) => `MEDIA €${val}`}
                     style={{ fill: '#4A3B28', fontSize: '11px', fontWeight: 'bold' }}
                   />
                 </Bar>
@@ -105,30 +126,26 @@ export default function ObservatorioPage() {
           </div>
         </div>
 
-        <div className="bg-[#4A3B28] p-6 md:p-8 rounded-3xl text-white shadow-xl">
-          <h2 className="text-xl font-serif mb-6 text-[#E9E1D8]">Metodología Ibero IA</h2>
+        <div className="bg-[#4A3B28] p-6 md:p-8 rounded-3xl text-white shadow-xl flex flex-col justify-center">
+          <h2 className="text-xl font-serif mb-6 text-[#E9E1D8]">¿Por qué promedios?</h2>
           <div className="space-y-6">
-            <div className="flex gap-4">
-              <span className="text-xl">⚖️</span>
-              <div>
-                <p className="font-bold text-sm">Precios €/Kg Reales</p>
-                <p className="text-[11px] text-[#B8A896]">Normalizamos fardos y manojos. Un manojo de 5€ puede ser más caro por kilo que un fardo.</p>
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <span className="text-xl">🔍</span>
-              <div>
-                <p className="font-bold text-sm">Dato Verificado</p>
-                <p className="text-[11px] text-[#B8A896]">Auditamos facturas reales para calcular el rendimiento del esparto.</p>
-              </div>
-            </div>
+            <p className="text-xs text-[#B8A896] leading-relaxed">
+              El mercado del esparto es variable. Un fardo de 25kg suele tener un precio por kilo inferior a un manojo pequeño. 
+              <strong> El gráfico suma todas las fuentes</strong> (tiendas online, ventas directas y anuncios) para darte una referencia rápida.
+            </p>
+            <button 
+              onClick={scrollToTable}
+              className="w-full py-3 bg-[#6E8B3D] hover:bg-white hover:text-[#6E8B3D] transition-all rounded-xl font-bold uppercase text-[10px] tracking-widest"
+            >
+              Consultar precios al detalle ↓
+            </button>
           </div>
         </div>
       </section>
 
       {/* LISTADO COMPARATIVO */}
-      <section className="bg-white p-5 md:p-8 rounded-3xl border border-[#E9E1D8] shadow-sm">
-        <h2 className="text-xl md:text-2xl font-serif text-[#4A3B28] mb-6">Listado Comparativo (€/kg)</h2>
+      <section id="listado-precios" className="bg-white p-5 md:p-8 rounded-3xl border border-[#E9E1D8] shadow-sm scroll-mt-20">
+        <h2 className="text-xl md:text-2xl font-serif text-[#4A3B28] mb-6">Listado Comparativo (Al Detalle)</h2>
 
         {cargando ? (
           <div className="py-20 text-center animate-pulse text-neutral-400 text-sm">Cargando base de precios...</div>
@@ -147,11 +164,7 @@ export default function ObservatorioPage() {
                 </thead>
                 <tbody className="divide-y divide-[#FAF6F1]">
                   {datosTabla.map((item) => {
-                    // LÓGICA DE MAYÚSCULAS/MINÚSCULAS PARA ZONA
-                    const zonaFormateada = item.zona.toLowerCase() === 'nacional' 
-                      ? 'nacional' 
-                      : item.zona.toUpperCase(); // SI NO ES NACIONAL, TODO EN MAYÚSCULAS (MURCIA, ALBACETE)
-                    
+                    const zonaFormateada = item.zona.toLowerCase() === 'nacional' ? 'nacional' : item.zona.toUpperCase();
                     const esManojo = item.formato.toLowerCase().includes('manojo');
 
                     return (
@@ -172,9 +185,7 @@ export default function ObservatorioPage() {
             {/* VISTA MÓVIL */}
             <div className="md:hidden space-y-3">
               {datosTabla.map((item) => {
-                const zonaFormateada = item.zona.toLowerCase() === 'nacional' 
-                  ? 'nacional' 
-                  : item.zona.toUpperCase();
+                const zonaFormateada = item.zona.toLowerCase() === 'nacional' ? 'nacional' : item.zona.toUpperCase();
                 const esManojo = item.formato.toLowerCase().includes('manojo');
                 
                 return (
