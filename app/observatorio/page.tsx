@@ -117,7 +117,7 @@ export default function ObservatorioPage() {
                   <LabelList 
                     dataKey="promedio" 
                     position="top" 
-                    formatter={(val: number) => `MEDIA €${val}`}
+                    formatter={(val: any) => `MEDIA €${val}`}
                     style={{ fill: '#4A3B28', fontSize: '11px', fontWeight: 'bold' }}
                   />
                 </Bar>
