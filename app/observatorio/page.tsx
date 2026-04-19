@@ -48,7 +48,7 @@ export default function ObservatorioPage() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-6 md:py-8 font-sans text-neutral-900 bg-[#FAF6F1] min-h-screen">
-      {/* HEADER - OPTIMIZADO MÓVIL */}
+      {/* HEADER */}
       <section className="mb-6 md:mb-8">
         <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-8">
           <div>
@@ -60,7 +60,7 @@ export default function ObservatorioPage() {
           </Link>
         </div>
         
-        {/* KPIs - REJILLA ADAPTATIVA */}
+        {/* KPIs */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-8">
           {statsPorTipo.map((s) => (
             <div key={s.tipo} className="bg-white p-4 md:p-5 rounded-2xl shadow-sm border-l-4 border-[#6E8B3D] border-[#E9E1D8] border-y border-r">
@@ -71,7 +71,7 @@ export default function ObservatorioPage() {
         </div>
       </section>
 
-      {/* GRÁFICO - ALTURA AJUSTADA PARA MÓVIL */}
+      {/* GRÁFICO */}
       <section className="grid gap-6 lg:grid-cols-3 mb-10">
         <div className="lg:col-span-2 bg-white p-5 md:p-8 rounded-3xl border border-[#E9E1D8] shadow-sm">
           <h2 className="text-lg md:text-xl font-serif mb-6 text-[#4A3B28] border-b border-[#FAF6F1] pb-4">Distribución (€ / Kilo)</h2>
@@ -105,29 +105,28 @@ export default function ObservatorioPage() {
           </div>
         </div>
 
-        {/* INFO METODOLOGÍA - OCULTA ALGUNOS DETALLES EN MÓVIL PARA AHORRAR ESPACIO */}
         <div className="bg-[#4A3B28] p-6 md:p-8 rounded-3xl text-white shadow-xl">
-          <h2 className="text-xl font-serif mb-6 text-[#E9E1D8]">Metodología Ibero-IA</h2>
+          <h2 className="text-xl font-serif mb-6 text-[#E9E1D8]">Metodología Ibero IA</h2>
           <div className="space-y-6">
             <div className="flex gap-4">
               <span className="text-xl">⚖️</span>
               <div>
                 <p className="font-bold text-sm">Precios €/Kg Reales</p>
-                <p className="text-[11px] text-[#B8A896]">Normalizamos todos los formatos (manojo, fardo) para comparar manzanas con manzanas.</p>
+                <p className="text-[11px] text-[#B8A896]">Normalizamos fardos y manojos. Un manojo de 5€ puede ser más caro por kilo que un fardo.</p>
               </div>
             </div>
             <div className="flex gap-4">
               <span className="text-xl">🔍</span>
               <div>
                 <p className="font-bold text-sm">Dato Verificado</p>
-                <p className="text-[11px] text-[#B8A896]">Auditamos facturas y webs para que el artesano no pague de más.</p>
+                <p className="text-[11px] text-[#B8A896]">Auditamos facturas reales para calcular el rendimiento del esparto.</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* LISTADO DE PRECIOS - TABLA PARA DESKTOP / TARJETAS PARA MÓVIL */}
+      {/* LISTADO CON LOGICA DE NEGRILLA Y MAYUSCULAS */}
       <section className="bg-white p-5 md:p-8 rounded-3xl border border-[#E9E1D8] shadow-sm">
         <h2 className="text-xl md:text-2xl font-serif text-[#4A3B28] mb-6">Listado Comparativo (€/kg)</h2>
 
@@ -135,7 +134,7 @@ export default function ObservatorioPage() {
           <div className="py-20 text-center animate-pulse text-neutral-400 text-sm">Cargando base de precios...</div>
         ) : (
           <>
-            {/* VISTA DESKTOP (TABLA) - Se oculta en móvil */}
+            {/* VISTA DESKTOP */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
@@ -147,35 +146,51 @@ export default function ObservatorioPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#FAF6F1]">
-                  {datosTabla.map((item) => (
-                    <tr key={item.id} className="hover:bg-[#FAF6F1]/80 transition-colors">
-                      <td className="py-4 text-sm font-bold text-[#4A3B28]">{item.tipo_esparto}</td>
-                      <td className="py-4 text-xs text-neutral-500 italic">{item.formato}</td>
-                      <td className="py-4 text-xs text-neutral-500">{item.zona}</td>
-                      <td className="py-4 text-right font-serif text-xl text-[#6E8B3D]">€{item.precio_normalizado_kg?.toFixed(2)}</td>
-                    </tr>
-                  ))}
+                  {datosTabla.map((item) => {
+                    // LÓGICA DE MAYÚSCULAS PARA ZONA
+                    const zonaFormateada = item.zona.toLowerCase() === 'nacional' ? 'nacional' : item.zona;
+                    // LÓGICA DE NEGRILLA PARA MANOJO
+                    const esManojo = item.formato.toLowerCase().includes('manojo');
+
+                    return (
+                      <tr key={item.id} className="hover:bg-[#FAF6F1]/80 transition-colors">
+                        <td className="py-4 text-sm font-bold text-[#4A3B28]">{item.tipo_esparto}</td>
+                        <td className={`py-4 text-xs italic ${esManojo ? 'font-bold text-neutral-800 not-italic' : 'text-neutral-500'}`}>
+                          {item.formato}
+                        </td>
+                        <td className="py-4 text-xs text-neutral-500">{zonaFormateada}</td>
+                        <td className="py-4 text-right font-serif text-xl text-[#6E8B3D]">€{item.precio_normalizado_kg?.toFixed(2)}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
 
-            {/* VISTA MÓVIL (TARJETAS) - Solo se ve en móvil */}
+            {/* VISTA MÓVIL */}
             <div className="md:hidden space-y-3">
-              {datosTabla.map((item) => (
-                <div key={item.id} className="bg-[#FAF6F1]/50 p-4 rounded-2xl border border-[#E9E1D8]">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <p className="text-xs font-bold text-[#4A3B28] uppercase tracking-wider">{item.tipo_esparto}</p>
-                      <p className="text-[10px] text-neutral-500">{item.zona}</p>
+              {datosTabla.map((item) => {
+                const zonaFormateada = item.zona.toLowerCase() === 'nacional' ? 'nacional' : item.zona;
+                const esManojo = item.formato.toLowerCase().includes('manojo');
+                
+                return (
+                  <div key={item.id} className="bg-[#FAF6F1]/50 p-4 rounded-2xl border border-[#E9E1D8]">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <p className="text-xs font-bold text-[#4A3B28] uppercase tracking-wider">{item.tipo_esparto}</p>
+                        <p className="text-[10px] text-neutral-500">{zonaFormateada}</p>
+                      </div>
+                      <p className="text-lg font-serif text-[#6E8B3D] font-bold">€{item.precio_normalizado_kg?.toFixed(2)}/kg</p>
                     </div>
-                    <p className="text-lg font-serif text-[#6E8B3D] font-bold">€{item.precio_normalizado_kg?.toFixed(2)}/kg</p>
+                    <div className="flex justify-between items-center text-[10px] border-t border-[#E9E1D8] pt-2 mt-2">
+                      <span className={`${esManojo ? 'font-bold text-neutral-800' : 'text-neutral-400 italic'}`}>
+                        {item.formato}
+                      </span>
+                      <span className="bg-white px-2 py-0.5 rounded-full border border-[#E9E1D8] text-[9px] font-bold">{item.fuente_tipo}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center text-[10px] border-t border-[#E9E1D8] pt-2 mt-2">
-                    <span className="text-neutral-400 italic">Vendido en: {item.formato}</span>
-                    <span className="bg-white px-2 py-0.5 rounded-full border border-[#E9E1D8] text-[9px] font-bold">{item.fuente_tipo}</span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </>
         )}
