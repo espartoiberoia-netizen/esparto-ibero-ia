@@ -126,7 +126,7 @@ export default function ObservatorioPage() {
         </div>
       </section>
 
-      {/* LISTADO CON LOGICA DE NEGRILLA Y MAYUSCULAS */}
+      {/* LISTADO COMPARATIVO */}
       <section className="bg-white p-5 md:p-8 rounded-3xl border border-[#E9E1D8] shadow-sm">
         <h2 className="text-xl md:text-2xl font-serif text-[#4A3B28] mb-6">Listado Comparativo (€/kg)</h2>
 
@@ -147,9 +147,11 @@ export default function ObservatorioPage() {
                 </thead>
                 <tbody className="divide-y divide-[#FAF6F1]">
                   {datosTabla.map((item) => {
-                    // LÓGICA DE MAYÚSCULAS PARA ZONA
-                    const zonaFormateada = item.zona.toLowerCase() === 'nacional' ? 'nacional' : item.zona;
-                    // LÓGICA DE NEGRILLA PARA MANOJO
+                    // LÓGICA DE MAYÚSCULAS/MINÚSCULAS PARA ZONA
+                    const zonaFormateada = item.zona.toLowerCase() === 'nacional' 
+                      ? 'nacional' 
+                      : item.zona.toUpperCase(); // SI NO ES NACIONAL, TODO EN MAYÚSCULAS (MURCIA, ALBACETE)
+                    
                     const esManojo = item.formato.toLowerCase().includes('manojo');
 
                     return (
@@ -158,7 +160,7 @@ export default function ObservatorioPage() {
                         <td className={`py-4 text-xs italic ${esManojo ? 'font-bold text-neutral-800 not-italic' : 'text-neutral-500'}`}>
                           {item.formato}
                         </td>
-                        <td className="py-4 text-xs text-neutral-500">{zonaFormateada}</td>
+                        <td className="py-4 text-[11px] font-bold tracking-wider text-neutral-600">{zonaFormateada}</td>
                         <td className="py-4 text-right font-serif text-xl text-[#6E8B3D]">€{item.precio_normalizado_kg?.toFixed(2)}</td>
                       </tr>
                     );
@@ -170,7 +172,9 @@ export default function ObservatorioPage() {
             {/* VISTA MÓVIL */}
             <div className="md:hidden space-y-3">
               {datosTabla.map((item) => {
-                const zonaFormateada = item.zona.toLowerCase() === 'nacional' ? 'nacional' : item.zona;
+                const zonaFormateada = item.zona.toLowerCase() === 'nacional' 
+                  ? 'nacional' 
+                  : item.zona.toUpperCase();
                 const esManojo = item.formato.toLowerCase().includes('manojo');
                 
                 return (
@@ -178,7 +182,7 @@ export default function ObservatorioPage() {
                     <div className="flex justify-between items-start mb-2">
                       <div>
                         <p className="text-xs font-bold text-[#4A3B28] uppercase tracking-wider">{item.tipo_esparto}</p>
-                        <p className="text-[10px] text-neutral-500">{zonaFormateada}</p>
+                        <p className="text-[10px] font-bold text-neutral-500 tracking-wider font-mono">{zonaFormateada}</p>
                       </div>
                       <p className="text-lg font-serif text-[#6E8B3D] font-bold">€{item.precio_normalizado_kg?.toFixed(2)}/kg</p>
                     </div>
