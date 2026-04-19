@@ -24,6 +24,9 @@ export function Navbar() {
           <Link href="/campus" className="hover:underline">
             Campus
           </Link>
+          <Link href="/observatorio" className="font-semibold text-[#6E8B3D] hover:underline decoration-2 underline-offset-4">
+            Observatorio
+          </Link>
           <Link href="/sobre" className="hover:underline">
             Sobre mí
           </Link>
