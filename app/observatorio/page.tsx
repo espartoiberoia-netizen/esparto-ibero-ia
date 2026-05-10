@@ -1,3 +1,8 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { fetchPreciosObservatorio, fetchIndiceMensual, PrecioData } from '@/lib/supabase';
 
 const MESES = [
