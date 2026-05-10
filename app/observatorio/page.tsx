@@ -1,9 +1,9 @@
-'use client';
+import { fetchPreciosObservatorio, fetchIndiceMensual, PrecioData } from '@/lib/supabase';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
-import { fetchPreciosObservatorio, PrecioData } from '@/lib/supabase';
+const MESES = [
+  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+];
 
 const ORDEN_TIPOS = [
   'Crudo en rama',
@@ -14,17 +14,56 @@ const ORDEN_TIPOS = [
 
 export default function ObservatorioPage() {
   const [precios, setPrecios] = useState<PrecioData[]>([]);
+  const [indices, setIndices] = useState<any[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [preciosAnteriores, setPreciosAnteriores] = useState<PrecioData[]>([]);
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    async function cargar() {
-      const data = await fetchPreciosObservatorio();
-      setPrecios(data);
+    async function cargarInicial() {
+      const availableIndices = await fetchIndiceMensual();
+      setIndices(availableIndices);
+      
+      if (availableIndices.length > 0) {
+        // Cargar el mes más reciente (índice 0 por el orden desc)
+        const currentId = availableIndices[0].id;
+        const data = await fetchPreciosObservatorio(currentId);
+        setPrecios(data);
+
+        // Intentar cargar el mes anterior para comparativa
+        if (availableIndices.length > 1) {
+          const prevData = await fetchPreciosObservatorio(availableIndices[1].id);
+          setPreciosAnteriores(prevData);
+        }
+      }
       setCargando(false);
     }
-    cargar();
+    cargarInicial();
   }, []);
 
+  const cambiarMes = async (dir: 'next' | 'prev') => {
+    let newIdx = currentIndex;
+    if (dir === 'next' && currentIndex > 0) newIdx--;
+    if (dir === 'prev' && currentIndex < indices.length - 1) newIdx++;
+    
+    if (newIdx !== currentIndex) {
+      setCargando(true);
+      setCurrentIndex(newIdx);
+      const data = await fetchPreciosObservatorio(indices[newIdx].id);
+      setPrecios(data);
+
+      // Cargar el anterior al nuevo para la comparativa
+      if (newIdx + 1 < indices.length) {
+        const prevData = await fetchPreciosObservatorio(indices[newIdx + 1].id);
+        setPreciosAnteriores(prevData);
+      } else {
+        setPreciosAnteriores([]);
+      }
+      setCargando(false);
+    }
+  };
+
+  const mesActual = indices[currentIndex] ? `${MESES[indices[currentIndex].mes - 1]} ${indices[currentIndex].anio}` : '---';
   const preciosValidos = precios.filter(p => !p.excluido && p.precio_normalizado_kg > 0);
   
   const statsPorTipo = ORDEN_TIPOS.map(tipoNombre => {
@@ -33,10 +72,18 @@ export default function ObservatorioPage() {
       ? parseFloat((items.reduce((a, b) => a + b.precio_normalizado_kg, 0) / items.length).toFixed(2))
       : 0;
     
+    // Calcular variación vs mes anterior
+    const itemsPrev = preciosAnteriores.filter(p => p.tipo_esparto.toLowerCase().includes(tipoNombre.split(' ')[0].toLowerCase()));
+    const promedioPrev = itemsPrev.length > 0 
+      ? parseFloat((itemsPrev.reduce((a, b) => a + b.precio_normalizado_kg, 0) / itemsPrev.length).toFixed(2))
+      : 0;
+    
+    const variacion = promedioPrev > 0 ? ((promedio - promedioPrev) / promedioPrev) * 100 : 0;
+
     let label = tipoNombre;
     if (tipoNombre === 'Crudo en rama') label = 'Crudo Entero';
 
-    return { tipo: label, promedio };
+    return { tipo: label, promedio, variacion };
   }).filter(s => s.promedio > 0);
 
   const datosTabla = [...precios].sort((a, b) => {
@@ -58,7 +105,31 @@ export default function ObservatorioPage() {
         <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-serif text-[#4A3B28] mb-2 leading-tight">Observatorio de Precios Esparto Ibero IA</h1>
-            <p className="text-sm md:text-base text-neutral-600 font-medium">Índice técnico de mercado • Abril 2026</p>
+            
+            {/* NAVEGADOR DE MESES */}
+            <div className="flex items-center gap-4 bg-white px-4 py-2 rounded-2xl border border-[#E9E1D8] shadow-sm w-fit mt-2">
+              <button 
+                onClick={() => cambiarMes('prev')}
+                disabled={currentIndex === indices.length - 1}
+                className="p-1 hover:bg-[#FAF6F1] rounded-full disabled:opacity-20 transition-colors"
+                title="Mes Anterior"
+              >
+                <svg className="w-6 h-6 text-[#6E8B3D]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7" /></svg>
+              </button>
+              
+              <p className="text-sm md:text-base text-[#4A3B28] font-black uppercase tracking-widest min-w-[140px] text-center">
+                {mesActual}
+              </p>
+
+              <button 
+                onClick={() => cambiarMes('next')}
+                disabled={currentIndex === 0}
+                className="p-1 hover:bg-[#FAF6F1] rounded-full disabled:opacity-20 transition-colors"
+                title="Mes Siguiente"
+              >
+                <svg className="w-6 h-6 text-[#6E8B3D]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 5l7 7-7 7" /></svg>
+              </button>
+            </div>
           </div>
           <Link href="/" className="w-full md:w-auto px-4 py-3 bg-white rounded-xl shadow-sm border border-[#E9E1D8] text-center text-sm font-bold text-[#6E8B3D] hover:bg-[#6E8B3D] hover:text-white transition-all">
             ← VOLVER AL PANEL
@@ -83,10 +154,16 @@ export default function ObservatorioPage() {
         {/* KPIs */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-8">
           {statsPorTipo.map((s) => (
-            <div key={s.tipo} className="bg-white p-4 md:p-5 rounded-2xl shadow-sm border-l-4 border-[#6E8B3D] border-[#E9E1D8] border-y border-r">
+            <div key={s.tipo} className="bg-white p-4 md:p-5 rounded-2xl shadow-sm border-l-4 border-[#6E8B3D] border-[#E9E1D8] border-y border-r relative overflow-hidden">
               <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-[#B8A896] mb-1 md:mb-2 font-black">{s.tipo}</p>
               <p className="text-lg md:text-3xl font-serif text-[#4A3B28]">€{s.promedio}<span className="text-[10px] md:text-sm text-neutral-400 font-sans ml-1">/kg</span></p>
-              <p className="text-[8px] text-green-600 font-bold">(MEDIA)</p>
+              
+              {/* VARIACION KPI */}
+              {s.variacion !== 0 && (
+                <div className={`text-[9px] font-black mt-1 ${s.variacion > 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
+                  {s.variacion > 0 ? '▲' : '▼'} {Math.abs(s.variacion).toFixed(1)}% <span className="text-[8px] text-neutral-400 font-normal">VS MES ANT.</span>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -94,7 +171,8 @@ export default function ObservatorioPage() {
 
       {/* GRÁFICO */}
       <section className="grid gap-6 lg:grid-cols-3 mb-10">
-        <div className="lg:col-span-2 bg-white p-5 md:p-8 rounded-3xl border border-[#E9E1D8] shadow-sm">
+        <div className="lg:col-span-2 bg-white p-5 md:p-8 rounded-3xl border border-[#E9E1D8] shadow-sm relative">
+          {cargando && <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-20 flex items-center justify-center rounded-3xl font-black text-[#6E8B3D] animate-pulse">ACTUALIZANDO DATOS...</div>}
           <h2 className="text-lg md:text-xl font-serif mb-6 text-[#4A3B28] border-b border-[#FAF6F1] pb-4">Promedio de Precios (€ / Kilo)</h2>
           <div className="h-64 md:h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -144,11 +222,12 @@ export default function ObservatorioPage() {
       </section>
 
       {/* LISTADO COMPARATIVO */}
-      <section id="listado-precios" className="bg-white p-5 md:p-8 rounded-3xl border border-[#E9E1D8] shadow-sm scroll-mt-20">
+      <section id="listado-precios" className="bg-white p-5 md:p-8 rounded-3xl border border-[#E9E1D8] shadow-sm scroll-mt-20 relative">
+        {cargando && <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-20 flex items-center justify-center rounded-3xl font-black text-[#6E8B3D] animate-pulse">CARGANDO...</div>}
         <h2 className="text-xl md:text-2xl font-serif text-[#4A3B28] mb-6">Listado Comparativo (Al Detalle)</h2>
 
-        {cargando ? (
-          <div className="py-20 text-center animate-pulse text-neutral-400 text-sm">Cargando base de precios...</div>
+        {!cargando && precios.length === 0 ? (
+          <div className="py-20 text-center text-neutral-400 text-sm">No hay datos publicados para este mes.</div>
         ) : (
           <>
             {/* VISTA DESKTOP */}
@@ -212,7 +291,7 @@ export default function ObservatorioPage() {
       </section>
 
       <footer className="mt-12 text-center text-[9px] text-[#B8A896] uppercase tracking-[0.3em] pb-8">
-        Esparto Ibero IA © 2026 • Móvil v1.1
+        Esparto Ibero IA © 2026 • Móvil v2.0 (Histórico Activo)
       </footer>
     </main>
   );

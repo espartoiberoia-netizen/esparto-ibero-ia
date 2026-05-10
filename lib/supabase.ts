@@ -19,10 +19,28 @@ export interface PrecioData {
 }
 
 /**
- * Obtiene los precios agregados para el observatorio
+ * Obtiene los meses disponibles en el índice
  */
-export async function fetchPreciosObservatorio() {
+export async function fetchIndiceMensual() {
   const { data, error } = await supabase
+    .from('indice_mensual')
+    .select('*')
+    .eq('estado', 'publicado')
+    .order('anio', { ascending: false })
+    .order('mes', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching indice:', error);
+    return [];
+  }
+  return data;
+}
+
+/**
+ * Obtiene los precios para un informe específico
+ */
+export async function fetchPreciosObservatorio(indiceId?: number) {
+  let query = supabase
     .from('precios')
     .select(`
       id,
@@ -30,12 +48,21 @@ export async function fetchPreciosObservatorio() {
       precio_normalizado_kg,
       fecha,
       excluido_calculo,
+      indice_mensual_id,
       tipos_esparto (nombre),
       zonas_geograficas (provincia),
       formatos_venta (nombre),
       fuentes (tipo)
-    `)
-    .order('precio_normalizado_kg', { ascending: true }); // Orden base por precio
+    `);
+
+  if (indiceId) {
+    query = query.eq('indice_mensual_id', indiceId);
+  } else {
+    // Si no hay ID, traer lo más reciente por defecto
+    query = query.order('fecha', { ascending: false }).limit(50);
+  }
+
+  const { data, error } = await query.order('precio_normalizado_kg', { ascending: true });
 
   if (error) {
     console.error('Error fetching precios:', error);
@@ -51,6 +78,7 @@ export async function fetchPreciosObservatorio() {
     precio_normalizado_kg: item.precio_normalizado_kg,
     fecha: item.fecha,
     fuente_tipo: item.fuentes?.tipo || 'directo',
-    excluido: item.excluido_calculo
+    excluido: item.excluido_calculo,
+    indice_mensual_id: item.indice_mensual_id
   }));
 }
