@@ -72,13 +72,13 @@ export default function ObservatorioPage() {
   const preciosValidos = precios.filter(p => !p.excluido && p.precio_normalizado_kg > 0);
   
   const statsPorTipo = ORDEN_TIPOS.map(tipoNombre => {
-    const items = preciosValidos.filter(p => p.tipo_esparto.toLowerCase().includes(tipoNombre.split(' ')[0].toLowerCase()));
+    const items = preciosValidos.filter(p => p.tipo_esparto.trim().toLowerCase() === tipoNombre.toLowerCase());
     const promedio = items.length > 0 
       ? parseFloat((items.reduce((a, b) => a + b.precio_normalizado_kg, 0) / items.length).toFixed(2))
       : 0;
     
     // Calcular variación vs mes anterior
-    const itemsPrev = preciosAnteriores.filter(p => p.tipo_esparto.toLowerCase().includes(tipoNombre.split(' ')[0].toLowerCase()));
+    const itemsPrev = preciosAnteriores.filter(p => p.tipo_esparto.trim().toLowerCase() === tipoNombre.toLowerCase());
     const promedioPrev = itemsPrev.length > 0 
       ? parseFloat((itemsPrev.reduce((a, b) => a + b.precio_normalizado_kg, 0) / itemsPrev.length).toFixed(2))
       : 0;
@@ -92,8 +92,8 @@ export default function ObservatorioPage() {
   }).filter(s => s.promedio > 0);
 
   const datosTabla = [...precios].sort((a, b) => {
-    const idxA = ORDEN_TIPOS.findIndex(t => a.tipo_esparto.includes(t.split(' ')[0]));
-    const idxB = ORDEN_TIPOS.findIndex(t => b.tipo_esparto.includes(t.split(' ')[0]));
+    const idxA = ORDEN_TIPOS.findIndex(t => a.tipo_esparto.trim().toLowerCase() === t.toLowerCase());
+    const idxB = ORDEN_TIPOS.findIndex(t => b.tipo_esparto.trim().toLowerCase() === t.toLowerCase());
     if (idxA !== idxB) return idxA - idxB;
     return a.precio_normalizado_kg - b.precio_normalizado_kg;
   });
