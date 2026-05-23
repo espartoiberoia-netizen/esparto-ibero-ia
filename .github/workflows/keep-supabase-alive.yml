@@ -17,12 +17,4 @@ jobs:
                -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9xYnJsbWFvbHhucnRwY3JlYmFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzODI0NTAsImV4cCI6MjA3ODk1ODQ1MH0.--XomTKpoOz4IVEno4yeNe-apqYotAXOY2WUqD3B-Ew" \
                -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9xYnJsbWFvbHhucnRwY3JlYmFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzODI0NTAsImV4cCI6MjA3ODk1ODQ1MH0.--XomTKpoOz4IVEno4yeNe-apqYotAXOY2WUqD3B-Ew"
 
-## Verification Plan
-### Automated Tests
-- Commit the new workflow file and push to the `main` branch.
-- Verify in GitHub Actions UI that the workflow appears under the Actions tab.
-- Manually trigger the workflow via `Run workflow` button to ensure the curl command succeeds (should return a 200 response).
 
-### Manual Verification
-- Check Supabase dashboard after the workflow runs to confirm activity timestamp updated.
-- Adjust schedule if desired and monitor that the workflow runs automatically on the next scheduled time.
