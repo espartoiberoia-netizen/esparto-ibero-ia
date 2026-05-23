@@ -1,0 +1,29 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    # Runs at 00:00 UTC every Monday and Thursday
+    - cron: '0 0 * * 1,4'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        env:
+          TABLE_NAME: "users"  # Reemplaza con el nombre de una tabla existente, por ejemplo "users"
+        run: |
+          curl -s "${{ secrets.SUPABASE_URL }}/rest/v1/${TABLE_NAME}?limit=1" \
+               -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+               -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
+
+## Verification Plan
+### Automated Tests
+- Commit the new workflow file and push to the `main` branch.
+- Verify in GitHub Actions UI that the workflow appears under the Actions tab.
+- Manually trigger the workflow via `Run workflow` button to ensure the curl command succeeds (should return a 200 response).
+
+### Manual Verification
+- Check Supabase dashboard after the workflow runs to confirm activity timestamp updated.
+- Adjust schedule if desired and monitor that the workflow runs automatically on the next scheduled time.
