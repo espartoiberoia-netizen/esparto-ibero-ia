@@ -11,12 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping Supabase
-        env:
-          TABLE_NAME: "users"  # Reemplaza con el nombre de una tabla existente, por ejemplo "users"
+        # Hard‑coded values taken from .env.local
         run: |
-          curl -s "${{ secrets.SUPABASE_URL }}/rest/v1/${TABLE_NAME}?limit=1" \
-               -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-               -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
+          curl -s "https://oqbrlmaolxnrtpcrebaq.supabase.co/rest/v1/users?limit=1" \
+               -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9xYnJsbWFvbHhucnRwY3JlYmFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzODI0NTAsImV4cCI6MjA3ODk1ODQ1MH0.--XomTKpoOz4IVEno4yeNe-apqYotAXOY2WUqD3B-Ew" \
+               -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9xYnJsbWFvbHhucnRwY3JlYmFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzODI0NTAsImV4cCI6MjA3ODk1ODQ1MH0.--XomTKpoOz4IVEno4yeNe-apqYotAXOY2WUqD3B-Ew"
 
 ## Verification Plan
 ### Automated Tests
