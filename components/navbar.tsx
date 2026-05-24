@@ -5,9 +5,9 @@ export function Navbar() {
   return (
     <header className="border-b border-[#E9E1D8] bg-[#FAF6F1]/95">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <Link href="/" className="flex items-center gap-2 font-serif text-lg">
-          <img src="/images/logo_eiia_svg.svg" alt="Logo" className="h-10 w-10 object-contain" />
-          Esparto Ibero IA
+        <Link href="/" className="flex items-center gap-3 font-serif text-xl">
+          <img src="/images/logo_eiia_svg.svg" alt="Logo Esparto Ibero IA" className="h-16 w-auto object-contain md:h-20" />
+          <span className="hidden sm:inline-block">Esparto Ibero IA</span>
         </Link>
 
         {/* Navegación principal */}
