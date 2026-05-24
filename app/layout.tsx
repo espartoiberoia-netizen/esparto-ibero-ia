@@ -9,6 +9,9 @@ import { CookieBanner } from "@/components/cookie-banner";
 export const metadata = {
   title: "Esparto Ibero IA",
   description: "Formación en esparto que calma y conecta con la tierra",
+  verification: {
+    google: "wI15_pQTOpWgc1b2Fd6DIO6rtUn6Q41uuzb__mQyTj0",
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
