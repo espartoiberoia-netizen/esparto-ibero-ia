@@ -10,7 +10,7 @@ type Slide = {
 
 const SLIDES: Slide[] = [
   {
-    src: "/images/Hero_Logo_Esparto_Ibero_IA.png",
+    src: "/images/logo_eiia_svg.svg",
     alt: "Nuestra marca.",
   },
   {

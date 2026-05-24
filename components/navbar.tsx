@@ -5,9 +5,8 @@ export function Navbar() {
   return (
     <header className="border-b border-[#E9E1D8] bg-[#FAF6F1]/95">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        {/* Marca / logo sencillo */}
-        <Link href="/" className="font-serif text-lg">
-          Esparto Ibero IA
+        <Link href="/" className="flex items-center gap-2 font-serif text-lg">
+          <img src="/images/logo_eiia_svg.svg" alt="Esparto Ibero IA" className="h-12 w-auto" />
         </Link>
 
         {/* Navegación principal */}
